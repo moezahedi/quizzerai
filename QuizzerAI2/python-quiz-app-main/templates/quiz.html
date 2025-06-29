@@ -149,7 +149,7 @@
 
     $(function() {
         $.get("/learning_material", function(data) {
-            quizData = data.filter(mat => mat.topic === (window.topic || quizData[0]?.topic));
+            quizData = data;
             totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
             loadLearningMaterial(quizData);
         });
@@ -245,7 +245,7 @@
         $('.container > *').show();
         $('#result-screen').hide();
         $.get("/learning_material", function(data) {
-            quizData = data.filter(mat => mat.topic === (window.topic || quizData[0]?.topic));
+            quizData = data;
             totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
             loadLearningMaterial(quizData);
         });
