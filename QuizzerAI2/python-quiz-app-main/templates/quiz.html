@@ -25,15 +25,48 @@
             max-width: 600px;
             width: 100%;
         }
-        h1, h2, h4, h5 {
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .quiz-title {
             color: #f07f0e;
             font-weight: 700;
+            font-size: 1.5rem;
             letter-spacing: 1.2px;
+            margin: 0;
+        }
+        .quiz-score {
+            color: #ffb366;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .progress {
+            height: 18px;
+            background: #232526;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #f07f0e 0%, #ffb366 100%);
+            color: #232526;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 10px;
         }
         #learning-material h4, #learning-material p {
             color: #ffb366;
         }
-        .option-btn, .btn-warning {
+        .question-text {
+            color: #f07f0e;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        .option-btn {
             min-width: 180px;
             font-size: 1.08rem;
             font-weight: 600;
@@ -45,7 +78,7 @@
             border: none;
             margin-bottom: 0.7rem;
         }
-        .option-btn:hover, .option-btn:focus, .btn-warning:hover, .btn-warning:focus {
+        .option-btn:hover, .option-btn:focus {
             transform: translateY(-3px) scale(1.04);
             box-shadow: 0 6px 24px 0 #f07f0e66, 0 0 16px 2px #ffb36699;
             background: linear-gradient(90deg, #ffb366 0%, #f07f0e 100%);
@@ -79,6 +112,13 @@
 <body>
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="quiz-card w-100">
+        <div class="quiz-header">
+            <span class="quiz-title">QuizzerAI</span>
+            <span class="quiz-score" id="score-label">Score: <span id="score">0</span></span>
+        </div>
+        <div class="progress mb-3">
+            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+        </div>
         <div id="learning-material" class="mb-4 p-3 rounded bg-secondary bg-opacity-25">
             <h4 id="subtopic"></h4>
             <p id="content"></p>
@@ -99,18 +139,29 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    // --- Professional progress bar and score update ---
     let currentMaterialIndex = 0;
     let currentQuestionIndex = 0;
     let currentQuestions = [];
     let quizData = [];
     let score = 0;
     let totalQuestions = 0;
-    $.get("/learning_material", function(data) {
-        quizData = data;
-        // Count total questions for final score
-        totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
-        loadLearningMaterial(quizData);
+
+    $(function() {
+        $.get("/learning_material", function(data) {
+            quizData = data.filter(mat => mat.topic === (window.topic || quizData[0]?.topic));
+            totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
+            loadLearningMaterial(quizData);
+        });
+        $('#next-button').on('click', nextQuestion);
     });
+
+    function updateProgressBar() {
+        const answered = quizData.slice(0, currentMaterialIndex).reduce((sum, mat) => sum + mat.questions.length, 0) + currentQuestionIndex + 1;
+        const percent = Math.round((answered / totalQuestions) * 100);
+        $('#progress-bar').css('width', percent + '%').text(percent + '%');
+    }
+
     function loadLearningMaterial(data) {
         if (currentMaterialIndex >= data.length) {
             endQuiz();
@@ -128,30 +179,45 @@
             loadLearningMaterial(data);
         }
     }
+
     function loadQuestion(question) {
-        $('#questions').html(`<p>${question.question_text}</p>`);
+        $('#questions').html(`<div class="question-text">${question.question_text}</div>`);
         $('#answer-buttons').empty();
-        question.options.forEach((opt, index) => {
-            $('#answer-buttons').append(`<button id="btn${index}" onclick="submitAnswer(${index})">${opt.answer_text}</button>`);
-        });
+        $('#feedback').addClass('d-none').text('');
         $('#next-button').hide();
-        $('#feedback').hide();
+        question.options.forEach((opt, index) => {
+            $('#answer-buttons').append(
+                `<button class="option-btn" id="btn${index}" onclick="submitAnswer(${index})">${opt.answer_text}</button>`
+            );
+        });
+        updateProgressBar();
+        $('#score').text(score);
     }
+
     function submitAnswer(answerIndex) {
         const question = currentQuestions[currentQuestionIndex];
         const correctAnswer = question.answer;
-        let feedbackMessage = "";
-        // Disable all answer buttons
-        $("#answer-buttons button").prop('disabled', true);
-        if (answerIndex === correctAnswer) {
-            feedbackMessage = "Correct!";
-            score++;
-        } else {
-            feedbackMessage = `Incorrect! ${question.options[answerIndex].explanation}`;
-        }
-        $('#feedback').text(feedbackMessage).show();
+        $(".option-btn").prop('disabled', true);
+        question.options.forEach((opt, idx) => {
+            let btn = $(`#btn${idx}`);
+            let explanation = `<div class='option-explanation'>${opt.explanation}</div>`;
+            if (idx === correctAnswer) {
+                btn.addClass('selected');
+                btn.after(explanation);
+            } else if (idx === answerIndex) {
+                btn.addClass('incorrect');
+                btn.after(explanation);
+            } else {
+                btn.after(explanation);
+            }
+        });
+        let feedbackMessage = (answerIndex === correctAnswer) ? "<strong>Correct!</strong>" : `<strong>Incorrect!</strong> The correct answer is highlighted.`;
+        if (answerIndex === correctAnswer) score++;
+        $('#score').text(score);
+        $('#feedback').removeClass('d-none').html(feedbackMessage);
         $('#next-button').show();
     }
+
     function nextQuestion() {
         currentQuestionIndex++;
         if (currentQuestionIndex < currentQuestions.length) {
@@ -165,24 +231,21 @@
             }
         }
     }
+
     function endQuiz() {
-        $('#learning-material').hide();
-        $('#quiz-container').hide();
-        $('#feedback').hide();
+        $('.container > *').hide();
         $('#result-screen').show();
         $('#final-score').text(`Your score: ${score} out of ${totalQuestions}`);
     }
+
     function restartQuiz() {
-        // Reset all state and reload quiz
         currentMaterialIndex = 0;
         currentQuestionIndex = 0;
         score = 0;
-        $('#learning-material').show();
-        $('#quiz-container').show();
-        $('#feedback').hide();
+        $('.container > *').show();
         $('#result-screen').hide();
         $.get("/learning_material", function(data) {
-            quizData = data;
+            quizData = data.filter(mat => mat.topic === (window.topic || quizData[0]?.topic));
             totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
             loadLearningMaterial(quizData);
         });
