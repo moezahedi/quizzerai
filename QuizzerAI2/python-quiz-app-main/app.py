@@ -61,5 +61,9 @@ def get_learning_material():
 def learning_material_page():
     return render_template('learning_material.html')  # Lädt die Lernmaterial-Seite
 
+@app.route('/topics')
+def topics():
+    return jsonify(list(question_data.keys()))
+
 if __name__ == '__main__':
     app.run(debug=True)
