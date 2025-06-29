@@ -147,9 +147,19 @@
     let score = 0;
     let totalQuestions = 0;
 
+    function getTopicFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('topic');
+    }
+
     $(function() {
+        const selectedTopic = getTopicFromUrl();
         $.get("/learning_material", function(data) {
-            quizData = data;
+            if (selectedTopic) {
+                quizData = data.filter(mat => mat.topic === selectedTopic);
+            } else {
+                quizData = data;
+            }
             totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
             loadLearningMaterial(quizData);
         });
@@ -244,8 +254,13 @@
         score = 0;
         $('.container > *').show();
         $('#result-screen').hide();
+        const selectedTopic = getTopicFromUrl();
         $.get("/learning_material", function(data) {
-            quizData = data;
+            if (selectedTopic) {
+                quizData = data.filter(mat => mat.topic === selectedTopic);
+            } else {
+                quizData = data;
+            }
             totalQuestions = quizData.reduce((sum, mat) => sum + mat.questions.length, 0);
             loadLearningMaterial(quizData);
         });
