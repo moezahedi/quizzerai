@@ -5,153 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #1e1f21;
-            color: #e2e2e2;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            font-family: 'Inter', Arial, sans-serif;
         }
-        h1 {
-            color: #f07f0e;
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-        #learning-material {
-            background-color: #2c2e33;
-            padding: 30px;
-            margin: 10px auto;
-            width: 80%;
-            max-width: 700px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        #learning-material h2 {
-            color: #f07f0e;
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-        }
-        #learning-material p {
-            color: #ccc;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        #quiz-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 80%;
-            max-width: 700px;
-            margin-top: 30px;
-        }
-        #questions {
-            color: #f07f0e;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .question-buttons button {
-            background-color: #444;
-            color: #f07f0e;
-            font-size: 1.2rem;
-            padding: 15px 30px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        .quiz-card {
+            background: rgba(34, 34, 34, 0.98);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px 0 rgba(240, 127, 14, 0.18), 0 0 24px 2px #f07f0e44;
+            border: none;
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 600px;
             width: 100%;
-            max-width: 300px;
+        }
+        h1, h2, h4, h5 {
+            color: #f07f0e;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+        }
+        #learning-material h4, #learning-material p {
+            color: #ffb366;
+        }
+        .option-btn, .btn-warning {
+            min-width: 180px;
+            font-size: 1.08rem;
+            font-weight: 600;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px 0 #f07f0e33;
+            transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+            background: linear-gradient(90deg, #f07f0e 0%, #ffb366 100%);
+            color: #232526;
             border: none;
-            margin-bottom: 15px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.7rem;
         }
-        .question-buttons button:hover {
-            background-color: #555;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            transform: translateY(-4px);
-        }
-        .question-buttons button:active {
-            background-color: #dd6509;
-            transform: translateY(2px);
-        }
-        #next-button {
-            display: none;
-            background-color: #ff7b00;
-            color: white;
-            padding: 15px 30px;
-            margin-top: 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: background-color 0.3s ease;
-        }
-        #next-button:hover {
-            background-color: #dd6509;
+        .option-btn:hover, .option-btn:focus, .btn-warning:hover, .btn-warning:focus {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 6px 24px 0 #f07f0e66, 0 0 16px 2px #ffb36699;
+            background: linear-gradient(90deg, #ffb366 0%, #f07f0e 100%);
+            color: #232526;
         }
         #feedback {
-            color: #ddd;
-            font-size: 1.2rem;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #444;
-            border-radius: 5px;
-            width: 60%;
-            max-width: 600px;
+            color: #ffb366;
+            font-size: 1.15rem;
+            margin-top: 1.2rem;
+            padding: 1rem;
+            background: #232526;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px 0 #f07f0e33;
             text-align: center;
         }
-        #question-counter {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 1rem;
-            color: #ccc;
-            background-color: #2c2e33;
-            padding: 10px 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        #question-topic {
+        #result-screen h2 {
             color: #f07f0e;
+            font-weight: 700;
+        }
+        #result-screen p {
+            color: #ffb366;
             font-size: 1.2rem;
+        }
+        .btn-primary, .btn-secondary {
+            font-weight: 600;
+            border-radius: 10px;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
-<h1>Learning Material and Quiz</h1>
-<div id="learning-material">
-    <h2 id="subtopic"></h2>
-    <p id="content"></p>
-</div>
-<div id="quiz-container">
-    <div id="questions">
-        <!-- Die Frage wird hier angezeigt -->
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="quiz-card w-100">
+        <div id="learning-material" class="mb-4 p-3 rounded bg-secondary bg-opacity-25">
+            <h4 id="subtopic"></h4>
+            <p id="content"></p>
+        </div>
+        <div id="quiz-container" class="mb-4">
+            <div id="questions" class="mb-3"></div>
+            <div id="answer-buttons" class="d-grid gap-2"></div>
+            <button id="next-button" class="btn btn-warning mt-3" style="display:none;">Next Question</button>
+        </div>
+        <div id="feedback" class="d-none"></div>
+        <div id="result-screen" style="display:none; text-align:center;">
+            <h2>Quiz Complete!</h2>
+            <p id="final-score"></p>
+            <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
+            <a href="/" class="btn btn-secondary ms-2">Back to Start</a>
+        </div>
     </div>
-    <div class="question-buttons" id="answer-buttons">
-        <!-- Answer buttons will be injected here -->
-    </div>
-    <button id="next-button" onclick="nextQuestion()" style="display:none;">Next Question</button>
-</div>
-<div id="feedback">
-    <!-- Hier erscheint das Feedback nach der Antwort -->
-</div>
-<div id="question-counter">
-    <span id="question-topic"></span><br>
-    <span id="question-counter-text"></span>
-</div>
-<div id="result-screen" style="display:none; text-align:center;">
-    <h2>Quiz Complete!</h2>
-    <p id="final-score"></p>
-    <button onclick="restartQuiz()">Try Again</button>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -190,8 +134,6 @@
         question.options.forEach((opt, index) => {
             $('#answer-buttons').append(`<button id="btn${index}" onclick="submitAnswer(${index})">${opt.answer_text}</button>`);
         });
-        $('#question-counter-text').text(`Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`);
-        $('#question-topic').text(`Topic: ${$('#subtopic').text()}`);
         $('#next-button').hide();
         $('#feedback').hide();
     }
@@ -227,7 +169,6 @@
         $('#learning-material').hide();
         $('#quiz-container').hide();
         $('#feedback').hide();
-        $('#question-counter').hide();
         $('#result-screen').show();
         $('#final-score').text(`Your score: ${score} out of ${totalQuestions}`);
     }
@@ -238,7 +179,7 @@
         score = 0;
         $('#learning-material').show();
         $('#quiz-container').show();
-        $('#question-counter').show();
+        $('#feedback').hide();
         $('#result-screen').hide();
         $.get("/learning_material", function(data) {
             quizData = data;
