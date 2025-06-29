@@ -206,6 +206,8 @@
         $('#answer-buttons').empty();
         $('#feedback').addClass('d-none').text('');
         $('#next-button').hide();
+        // Remove any previous explanations
+        $('.option-explanation').remove();
         question.options.forEach((opt, index) => {
             $('#answer-buttons').append(
                 `<button class="option-btn" id="btn${index}" onclick="submitAnswer(${index})">${opt.answer_text}</button>`
@@ -224,16 +226,15 @@
         if (answerIndex === correctAnswer) {
             // Correct: highlight chosen button green
             $("#btn" + answerIndex).addClass('correct-answer');
+            // Show explanation for correct answer only
+            $(`#btn${correctAnswer}`).after(`<div class='option-explanation'>${question.options[correctAnswer].explanation || ''}</div>`);
         } else {
             // Incorrect: highlight chosen button red, correct answer green
             $("#btn" + answerIndex).addClass('incorrect-answer');
             $("#btn" + correctAnswer).addClass('correct-answer');
+            // Show explanation for correct answer only
+            $(`#btn${correctAnswer}`).after(`<div class='option-explanation'>${question.options[correctAnswer].explanation || ''}</div>`);
         }
-        question.options.forEach((opt, idx) => {
-            let btn = $(`#btn${idx}`);
-            let explanation = `<div class='option-explanation'>${opt.explanation}</div>`;
-            btn.after(explanation);
-        });
         let feedbackMessage = (answerIndex === correctAnswer)
             ? "<span class='feedback-correct'><strong>Correct!</strong></span>"
             : "<span class='feedback-incorrect'><strong>Incorrect!</strong> The correct answer is highlighted.</span>";
