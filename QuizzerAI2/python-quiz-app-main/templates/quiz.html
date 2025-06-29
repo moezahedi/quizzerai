@@ -84,6 +84,12 @@
             background: linear-gradient(90deg, #ffb366 0%, #f07f0e 100%);
             color: #232526;
         }
+        .option-btn.chosen {
+            box-shadow: 0 0 0 3px #f07f0e, 0 2px 8px 0 #f07f0e33;
+            background: linear-gradient(90deg, #ffb366 0%, #f07f0e 100%);
+            color: #232526;
+            border: 2px solid #f07f0e;
+        }
         #feedback {
             color: #ffb366;
             font-size: 1.15rem;
@@ -195,6 +201,7 @@
         const question = questions[currentQuestionIndex];
         const correctAnswer = question.answer;
         $(".option-btn").prop('disabled', true);
+        $("#btn" + answerIndex).addClass('chosen');
         question.options.forEach((opt, idx) => {
             let btn = $(`#btn${idx}`);
             let explanation = `<div class='option-explanation'>${opt.explanation}</div>`;
